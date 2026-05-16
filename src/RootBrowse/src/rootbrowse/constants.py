@@ -58,5 +58,37 @@ DEFAULT_TIMEOUT = 10
 # ref 前缀
 REF_PREFIX = 'r'
 
+# 元素属性预览需要保留的 key
+KEY_ATTRS_PREVIEW = ['href', 'src', 'alt', 'title', 'name', 'type', 'value']
+
+# 区域标签关键词映射 (id/class 关键词 -> 显示名称)
+REGION_LABEL_KEYWORDS = {
+    'header': '页头',
+    'nav': '导航',
+    'menu': '菜单',
+    'sidebar': '侧边栏',
+    'aside': '侧边栏',
+    'main': '主内容',
+    'content': '内容区',
+    'body': '主体',
+    'footer': '页脚',
+    'search': '搜索',
+    'result': '结果',
+    'wrapper': '容器',
+    'container': '容器',
+    'hd': '页头',
+    'ft': '页脚',
+}
+
+# HTML 标签默认显示名称
+TAG_LABELS = {
+    'div': '区块',
+    'span': '行内',
+    'section': '分区',
+    'article': '文章',
+    'header': '页头',
+    'footer': '页脚',
+}
+
 # 状态文件扩展名
 STATE_FILE_EXTENSION = '.state.json'

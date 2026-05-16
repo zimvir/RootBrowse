@@ -3,7 +3,7 @@
 from typing import Any
 
 from .types import Element, ElementPreview, Region, RegionSummary
-from .constants import CLICKABLE_TAGS, REF_PREFIX, DEFAULT_LIMIT, DEFAULT_OFFSET
+from .constants import CLICKABLE_TAGS, REF_PREFIX, DEFAULT_LIMIT, DEFAULT_OFFSET, KEY_ATTRS_PREVIEW, REGION_LABEL_KEYWORDS, TAG_LABELS
 from .exceptions import RegionNotFoundError, ElementNotFoundError
 
 
@@ -349,34 +349,13 @@ class PageScanner:
         region_id = element.attr('id') or ""
         region_class = element.attr('class') or ""
 
-        # 常见的 id/class 关键词
-        keywords = {
-            'header': '页头',
-            'nav': '导航',
-            'menu': '菜单',
-            'sidebar': '侧边栏',
-            'aside': '侧边栏',
-            'main': '主内容',
-            'content': '内容区',
-            'body': '主体',
-            'footer': '页脚',
-            'search': '搜索',
-            'result': '结果',
-            'wrapper': '容器',
-            'container': '容器',
-            'hd': '页头',
-            'ft': '页脚',
-        }
-
         combined = (region_id + ' ' + region_class).lower()
-        for keyword, label in keywords.items():
+        for keyword, label in REGION_LABEL_KEYWORDS.items():
             if keyword in combined:
                 return label
 
-        # 默认返回 tag 名
         tag = element.tag or '区域'
-        tag_labels = {'div': '区块', 'span': '行内', 'section': '分区', 'article': '文章', 'header': '页头', 'footer': '页脚'}
-        return tag_labels.get(tag, tag)
+        return TAG_LABELS.get(tag, tag)
 
     def _find_region_for_element(self, element: Any) -> str:
         """查找元素所属的区域 ID"""
@@ -460,8 +439,7 @@ class PageScanner:
     def _get_attrs_preview(self, ele: Element) -> dict:
         """获取元素的属性预览"""
         preview = {}
-        key_attrs = ['href', 'src', 'alt', 'title', 'name', 'type', 'value']
-        for key in key_attrs:
+        for key in KEY_ATTRS_PREVIEW:
             if key in ele.attrs:
                 preview[key] = ele.attrs[key]
         return preview
