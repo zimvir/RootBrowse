@@ -29,19 +29,19 @@ browser = Browser(page)
 browser.get('https://example.com')
 
 # 获取页面区块
-regions = browser.page.get_regions()
+regions = browser.view.get_regions()
 print(regions)  # [Region(id='main', label='主内容', node_count=100), ...]
 
 # 获取区块统计摘要
-summary = browser.page.get_region_summary('main')
+summary = browser.view.get_region_summary('main')
 print(f"元素数量: {summary.count}")
 
 # 按条件筛选元素
-elements = browser.page.match_element(tag='a', text_contains='Python', limit=20)
+elements = browser.view.match_element(tag='a', text_contains='Python', limit=20)
 print(elements)  # [ElementPreview(ref='r5', text='Python 入门', ...), ...]
 
 # 获取完整元素信息
-ele = browser.page.get_element('r5')
+ele = browser.view.get_element('r5')
 print(f"点击: {ele.text} -> {ele.attrs['href']}")
 
 # 执行操作
@@ -126,11 +126,11 @@ browser.tabs.current_index()     # 获取当前索引
 ### PageScanner — 页面扫描
 
 ```python
-browser.page.get_regions()                    # 获取区块列表
-browser.page.get_region_summary(region_id)    # 获取区块统计
-browser.page.match_element(**filters)         # 筛选元素
-browser.page.get_element(ref)                # 获取完整元素
-browser.page.find_element(by, value)         # 精确定位
+browser.view.get_regions()                    # 获取区块列表
+browser.view.get_region_summary(region_id)    # 获取区块统计
+browser.view.match_element(**filters)         # 筛选元素
+browser.view.get_element(ref)                # 获取完整元素
+browser.view.find_element(by, value)         # 精确定位
 ```
 
 ### ElementOperator — 元素操作
