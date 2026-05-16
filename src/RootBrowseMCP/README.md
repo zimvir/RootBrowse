@@ -49,9 +49,12 @@ pip install rootbrowse-mcp
 - `send_enter()` — 发送回车键
 
 ### 浏览器
+- `init_browser(headless)` — 初始化浏览器（必选，headless 默认 True）
 - `get_page(url, timeout)` — 打开 URL
 - `take_screenshot(path)` — 页面截图
 - `close_browser()` — 关闭浏览器
+
+**注意：** 使用其他工具前必须先调用 `init_browser()` 初始化浏览器。
 
 ### 标签页
 - `new_tab(url)` — 打开新标签页

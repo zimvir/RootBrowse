@@ -11,7 +11,7 @@ def get_browser() -> Browser:
     """获取或创建 Browser 实例"""
     global _browser
     if _browser is None:
-        _browser = Browser()
+        raise RuntimeError("Browser 未初始化，请先调用 init_browser()")
     return _browser
 
 
@@ -166,6 +166,20 @@ def register_tools(mcp):
         return {"success": True}
 
     # ========== 浏览器 ==========
+
+    @mcp.tool()
+    def init_browser(headless: bool = True):
+        """初始化浏览器（必须在其他操作前调用）
+
+        Args:
+            headless: 是否无头模式，默认 True（无头）。设为 False 打开有头浏览器。
+
+        Returns:
+            dict: {success}
+        """
+        global _browser
+        _browser = Browser(headless=headless)
+        return {"success": True}
 
     @mcp.tool()
     def get_page(url: str, timeout: float = 30):

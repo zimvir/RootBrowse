@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1] - 2026-05-17
+
+### Changed
+
+- **浏览器初始化** — 新增 `init_browser(headless)` tool，必选
+- 其他 tools 需要先调用 `init_browser()` 才能使用
+
 ## [0.1.0] - 2026-05-17
 
 ### Added
