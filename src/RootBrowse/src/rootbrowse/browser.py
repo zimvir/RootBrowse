@@ -17,7 +17,7 @@ class Browser:
     AI 调用方式：
         browser = Browser()                    # 默认打开 bing.com
         browser = Browser('https://example.com') # 指定 URL
-        browser.page.get_regions()
+        browser.view.get_regions()
         browser.act.click('r1')
     """
 
@@ -75,7 +75,7 @@ class Browser:
         return self._tab_manager
 
     @property
-    def page(self) -> PageScanner:
+    def view(self) -> PageScanner:
         """页面扫描器"""
         return self._page_scanner
 

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__skysearch__search_bare",
+      "mcp__skysearch__fetch",
+      "Bash(python -m pytest src/RootBrowse/test/ -v)",
+      "Bash(python -m pytest src/RootBrowse/test/test_browser.py::TestGet::test_get_success src/RootBrowse/test/test_page_scanner.py::TestScanPage::test_scan_page_clears_existing_data -v)",
+      "Bash(python -m pytest src/RootBrowse/test/ -v --tb=no)",
+      "Bash(python -m pytest src/RootBrowse/test/ --tb=no -q)",
+      "WebFetch(domain:www.drissionpage.cn)",
+      "Bash(.venv/Scripts/python.exe -m pytest src/RootBrowse/test/ -v --durations=0)"
+    ]
+  }
+}

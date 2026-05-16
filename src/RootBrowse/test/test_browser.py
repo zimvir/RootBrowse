@@ -40,9 +40,9 @@ class TestBrowserInit:
         """测试 tabs 属性"""
         assert browser.tabs is not None
 
-    def test_page_property(self, browser):
-        """测试 page 属性"""
-        assert browser.page is not None
+    def test_view_property(self, browser):
+        """测试 view 属性"""
+        assert browser.view is not None
 
     def test_act_property(self, browser):
         """测试 act 属性"""
