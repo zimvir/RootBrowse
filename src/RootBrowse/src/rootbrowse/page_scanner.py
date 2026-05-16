@@ -20,6 +20,7 @@ class PageScanner:
         self._page = page
         self._element_map: dict[str, Element] = {}
         self._regions: list[Region] = []
+        self._element_to_region: dict[str, str] = {}  # ref -> region_id
 
     def get_regions(self) -> list[Region]:
         """
@@ -266,35 +267,179 @@ class PageScanner:
         """扫描页面，构建元素映射和区域列表"""
         self._element_map.clear()
         self._regions.clear()
+        self._element_to_region.clear()
 
-        # 扫描可交互元素（DrissionPage 用 tag: 前缀）
+        # 第一步：检测区域（body 直接子元素，排除噪音）
+        self._detect_regions()
+
+        # 第二步：扫描可交互元素，建立 ref 映射并记录归属区域
         ref_counter = 1
         for tag in CLICKABLE_TAGS:
             for ele in self._page.eles(f'tag:{tag}', timeout=0.5):
+                ref = f"{REF_PREFIX}{ref_counter}"
+                ref_counter += 1
+
                 try:
                     xpath = ele.xpath
                 except Exception:
-                    xpath = ""  # xpath 获取失败时用空字符串
+                    xpath = ""
 
                 try:
                     text = ele.text or ""
                 except Exception:
                     text = ""
 
-                self._element_map[f"{REF_PREFIX}{ref_counter}"] = Element(
-                    ref=f"{REF_PREFIX}{ref_counter}",
+                element = Element(
+                    ref=ref,
                     tag=ele.tag,
                     role=ele.attr("role") or "",
                     text=text,
                     xpath=xpath,
                     attrs=dict(ele.attrs) if hasattr(ele, 'attrs') else {}
                 )
-                ref_counter += 1
+                self._element_map[ref] = element
 
-        # 临时区域划分（按 body 直接子元素）
-        self._regions = [
-            Region(id="main", label="主内容", node_count=len(self._element_map))
-        ]
+                # 记录元素所属区域
+                region_id = self._find_region_for_element(ele)
+                self._element_to_region[ref] = region_id
+
+        # 更新区域的 node_count
+        region_counts: dict[str, int] = {}
+        for rid in self._element_to_region.values():
+            region_counts[rid] = region_counts.get(rid, 0) + 1
+        for region in self._regions:
+            region.node_count = region_counts.get(region.id, 0)
+
+    def _detect_regions(self) -> None:
+        """检测页面语义区域（body 直接子元素）"""
+        try:
+            body = self._page.ele('tag:body')
+            if body is None:
+                self._regions = [Region(id="region_1", label="主内容", node_count=0)]
+                return
+
+            children = body.children()
+            NOISE_TAGS = {'script', 'style', 'meta', 'noscript', 'textarea', 'input'}
+
+            region_id = 1
+            for child in children:
+                tag = child.tag or ""
+                if tag in NOISE_TAGS:
+                    continue
+
+                # 生成 region id 和 label
+                region_str = f"region_{region_id}"
+                region_label = self._guess_region_label(child)
+                self._regions.append(Region(
+                    id=region_str,
+                    label=region_label,
+                    node_count=0
+                ))
+                region_id += 1
+
+            # 如果没检测到任何区域，创建一个默认区域
+            if not self._regions:
+                self._regions = [Region(id="region_1", label="主内容", node_count=0)]
+
+        except Exception:
+            self._regions = [Region(id="region_1", label="主内容", node_count=0)]
+
+    def _guess_region_label(self, element: Any) -> str:
+        """根据元素属性猜测区域标签"""
+        region_id = element.attr('id') or ""
+        region_class = element.attr('class') or ""
+
+        # 常见的 id/class 关键词
+        keywords = {
+            'header': '页头',
+            'nav': '导航',
+            'menu': '菜单',
+            'sidebar': '侧边栏',
+            'aside': '侧边栏',
+            'main': '主内容',
+            'content': '内容区',
+            'body': '主体',
+            'footer': '页脚',
+            'search': '搜索',
+            'result': '结果',
+            'wrapper': '容器',
+            'container': '容器',
+            'hd': '页头',
+            'ft': '页脚',
+        }
+
+        combined = (region_id + ' ' + region_class).lower()
+        for keyword, label in keywords.items():
+            if keyword in combined:
+                return label
+
+        # 默认返回 tag 名
+        tag = element.tag or '区域'
+        tag_labels = {'div': '区块', 'span': '行内', 'section': '分区', 'article': '文章', 'header': '页头', 'footer': '页脚'}
+        return tag_labels.get(tag, tag)
+
+    def _find_region_for_element(self, element: Any) -> str:
+        """查找元素所属的区域 ID"""
+        try:
+            parent = element.parent()
+            if parent is None:
+                return "region_1"
+
+            # 遍历祖先链，找到属于已识别区域的容器
+            for _ in range(10):  # 最多向上 10 层
+                parent_tag = parent.tag if hasattr(parent, 'tag') else ''
+                if parent_tag in ('html', 'body', None):
+                    # 没找到，返回第一个 region
+                    return self._regions[0].id if self._regions else "region_1"
+
+                # 检查这个父元素是否是某个 region 的根元素
+                for region in self._regions:
+                    # 用 xpath 判断是否是同一元素
+                    try:
+                        if parent.xpath == self._page.ele(f'xpath={parent.xpath}').xpath:
+                            # 检查 region 的 xpath 是否匹配这个父元素
+                            region_root = self._get_region_root(region)
+                            if region_root and self._is_ancestor(region_root, parent):
+                                return region.id
+                    except Exception:
+                        pass
+
+                parent = parent.parent()
+        except Exception:
+            pass
+
+        return self._regions[0].id if self._regions else "region_1"
+
+    def _get_region_root(self, region: Region) -> Any:
+        """获取 region 对应的 DOM 根元素"""
+        try:
+            # region id 格式是 region_N，从 regions 列表中按顺序找
+            region_idx = int(region.id.split('_')[1]) - 1
+            body = self._page.ele('tag:body')
+            if body:
+                children = body.children()
+                NOISE_TAGS = {'script', 'style', 'meta', 'noscript', 'textarea', 'input'}
+                filtered = [c for c in children if c.tag not in NOISE_TAGS]
+                if 0 <= region_idx < len(filtered):
+                    return filtered[region_idx]
+        except Exception:
+            pass
+        return None
+
+    def _is_ancestor(self, ancestor: Any, element: Any) -> bool:
+        """检查 ancestor 是否是 element 的祖先"""
+        try:
+            current = element.parent()
+            for _ in range(10):
+                if current is None:
+                    return False
+                if hasattr(current, 'xpath') and hasattr(ancestor, 'xpath'):
+                    if current.xpath == ancestor.xpath:
+                        return True
+                current = current.parent()
+        except Exception:
+            pass
+        return False
 
     def _find_region(self, region_id: str) -> Region:
         """查找区域"""
@@ -305,9 +450,7 @@ class PageScanner:
 
     def _get_refs_in_region(self, region_id: str) -> set[str]:
         """获取区域内所有元素的 ref"""
-        # TODO: 实现按区域过滤
-        # 目前返回所有 ref
-        return set(self._element_map.keys())
+        return {ref for ref, rid in self._element_to_region.items() if rid == region_id}
 
     def _get_elements_in_region(self, region_id: str) -> list[Element]:
         """获取区域内所有元素"""

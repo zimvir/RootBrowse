@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-05-16
+
+### Added
+
+- **区域识别** — 实现真正的语义区域检测
+  - `browser.page` → `browser.view` 属性重命名
+  - `_detect_regions()`: body 直接子元素动态检测，排除噪音标签
+  - `_guess_region_label()`: 根据 id/class 关键词猜测区域名称
+  - `_element_to_region`: 记录元素与区域的归属关系
+  - `_get_refs_in_region()`: 按 region_id 过滤元素
+  - `save_state(path)`: cookies 序列化到 JSON 文件
+  - `load_state(path)`: 从 JSON 文件恢复 cookies
+
+### Changed
+
+- `Browser.page` 属性重命名为 `Browser.view`
+- Region id 格式从 `"main"` 改为 `"region_N"`
+
 ## [0.1.0] - 2026-05-10
 
 ### Added

@@ -30,10 +30,10 @@ browser.get('https://example.com')
 
 # 获取页面区块
 regions = browser.view.get_regions()
-print(regions)  # [Region(id='main', label='主内容', node_count=100), ...]
+print(regions)  # [Region(id='region_1', label='容器', node_count=87), ...]
 
 # 获取区块统计摘要
-summary = browser.view.get_region_summary('main')
+summary = browser.view.get_region_summary('region_1')
 print(f"元素数量: {summary.count}")
 
 # 按条件筛选元素

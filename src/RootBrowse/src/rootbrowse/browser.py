@@ -1,5 +1,6 @@
 """浏览器主入口"""
 
+import json
 from typing import Any
 
 from .constants import DEFAULT_URL
@@ -128,7 +129,7 @@ class Browser:
 
     def save_state(self, path: str) -> None:
         """
-        保存浏览器状态（cookies + localStorage）
+        保存浏览器状态（cookies）
 
         Args:
             path: 保存路径
@@ -137,14 +138,20 @@ class Browser:
             StateFileError: 保存失败
         """
         try:
-            self._page.set.cookies()
-            # TODO: 实现 localStorage 保存
+            cookies = self._page.cookies()
+            data = {
+                'version': '0.1.0',
+                'cookies': cookies if isinstance(cookies, list) else list(cookies),
+                'saved_at': self._get_timestamp(),
+            }
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             raise StateFileError(f"Failed to save state: {e}")
 
     def load_state(self, path: str) -> None:
         """
-        恢复浏览器状态（cookies + localStorage）
+        恢复浏览器状态（cookies）
 
         Args:
             path: 状态文件路径
@@ -153,10 +160,19 @@ class Browser:
             StateFileError: 恢复失败
         """
         try:
-            self._page.set.cookies()
-            # TODO: 实现 localStorage 恢复
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            cookies = data.get('cookies', [])
+            if cookies:
+                self._page.set.cookies(cookies)
         except Exception as e:
             raise StateFileError(f"Failed to load state: {e}")
+
+    @staticmethod
+    def _get_timestamp() -> str:
+        """返回当前时间戳 ISO 格式"""
+        from datetime import datetime, timezone
+        return datetime.now(timezone.utc).isoformat()
 
     def close(self) -> None:
         """关闭浏览器"""

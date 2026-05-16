@@ -16,6 +16,7 @@ def mock_page():
     page.get_screenshot = MagicMock()
     page.screenshot = MagicMock(return_value="base64_screenshot_data")
     page.quit = MagicMock()
+    page.cookies = MagicMock(return_value=[{'name': 'session', 'value': 'abc'}])
     return page
 
 
@@ -90,10 +91,17 @@ class TestScreenshot:
 class TestSaveState:
     """save_state 方法测试"""
 
-    def test_save_state_calls_set_cookies(self, browser, mock_page):
-        """测试保存状态调用 cookies 方法"""
-        browser.save_state('/tmp/state.json')
-        mock_page.set.cookies.assert_called_once()
+    def test_save_state_writes_json_file(self, browser, mock_page, tmp_path):
+        """测试保存状态写入 JSON 文件"""
+        mock_page.set.cookies.return_value = [{'name': 'session', 'value': 'abc'}]
+        state_file = tmp_path / "state.json"
+        browser.save_state(str(state_file))
+        assert state_file.exists()
+        import json
+        with open(state_file) as f:
+            data = json.load(f)
+        assert 'cookies' in data
+        assert data['cookies'] == [{'name': 'session', 'value': 'abc'}]
 
     def test_save_state_failure(self, browser, mock_page):
         """测试保存状态失败"""
@@ -105,10 +113,14 @@ class TestSaveState:
 class TestLoadState:
     """load_state 方法测试"""
 
-    def test_load_state_calls_set_cookies(self, browser, mock_page):
+    def test_load_state_calls_set_cookies(self, browser, mock_page, tmp_path):
         """测试恢复状态调用 cookies 方法"""
-        browser.load_state('/tmp/state.json')
-        mock_page.set.cookies.assert_called_once()
+        state_file = tmp_path / "state.json"
+        import json
+        with open(state_file, 'w') as f:
+            json.dump({'cookies': [{'name': 'session', 'value': 'xyz'}]}, f)
+        browser.load_state(str(state_file))
+        mock_page.set.cookies.assert_called_once_with([{'name': 'session', 'value': 'xyz'}])
 
     def test_load_state_failure(self, browser, mock_page):
         """测试恢复状态失败"""

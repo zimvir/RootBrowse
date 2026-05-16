@@ -14,6 +14,12 @@ def mock_page():
     page = MagicMock()
     page.get_ele_tree = MagicMock(return_value={})
     page.eles = MagicMock(return_value=[])
+
+    # mock body for _detect_regions
+    mock_body = MagicMock()
+    mock_body.tag = 'body'
+    mock_body.children.return_value = []
+    page.ele = MagicMock(return_value=mock_body)
     return page
 
 
@@ -51,7 +57,7 @@ class TestScanPage:
 
         assert page_scanner._element_map == {}
         # _scan_page 会重新填充 _regions 为默认的 "main" 区域
-        assert page_scanner._regions[0].id == "main"
+        assert page_scanner._regions[0].id == "region_1"
 
     def test_scan_page_with_clickable_elements(self, page_scanner, mock_page):
         """测试扫描可交互元素"""
@@ -137,7 +143,7 @@ class TestGetRegionSummary:
         mock_page.eles.side_effect = eles_side_effect
         page_scanner._scan_page()
 
-        summary = page_scanner.get_region_summary("main")
+        summary = page_scanner.get_region_summary("region_1")
         assert summary.count == 2
         assert "a" in summary.tag_counts
         assert "button" in summary.tag_counts
