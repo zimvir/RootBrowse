@@ -1,10 +1,21 @@
 """标签页管理器"""
 
+from typing import Any
+
 from .exceptions import TabNotFoundError
 
 
 class TabManager:
     """标签页管理器，管理浏览器标签页（新增、切换、关闭）"""
+
+    def __init__(self, page: Any):
+        """
+        初始化 TabManager
+
+        Args:
+            page: DrissionPage ChromiumPage 实例
+        """
+        self._page = page
 
     @property
     def _tabs(self) -> list:

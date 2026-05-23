@@ -49,7 +49,7 @@ class Browser:
         # 初始化子模块
         self._page_scanner = PageScanner(self._page)
         self._tab_manager = TabManager(self._page)
-        self._element_operator = ElementOperator(self._page, self._page_scanner._element_map)
+        self._element_operator = ElementOperator(self._page)
 
         # 打开默认 URL（只有当 page 和 url 都没提供时才自动打开）
         if page_2 is None and url is None:

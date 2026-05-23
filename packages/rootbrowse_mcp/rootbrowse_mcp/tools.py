@@ -35,24 +35,24 @@ def register_tools(mcp):
         """获取页面所有语义区域
 
         Returns:
-            list[dict]: 区域列表 [{id, label}, ...]
+            list[dict]: 区域列表 [{xpath, label}, ...]
         """
         browser = get_browser()
         regions = browser.view.get_regions()
-        return [{"id": r.id, "label": r.label} for r in regions]
+        return [{"xpath": r.xpath, "label": r.label} for r in regions]
 
     @mcp.tool()
-    def get_region_summary(region_id: str):
+    def get_region_summary(region_xpath: str):
         """获取指定区域的统计摘要
 
         Args:
-            region_id: 区域 ID，如 'region_1'
+            region_xpath: 区域 xpath 路径
 
         Returns:
             dict: {count, tag_counts, role_counts, text_preview}
         """
         browser = get_browser()
-        summary = browser.view.get_region_summary(region_id)
+        summary = browser.view.get_region_summary(region_xpath)
         return {
             "count": summary.count,
             "tag_counts": summary.tag_counts,
@@ -62,7 +62,7 @@ def register_tools(mcp):
 
     @mcp.tool()
     def match_element(
-        region_id: str | None = None,
+        region_xpath: str | None = None,
         tag: str | None = None,
         role: str | None = None,
         text_contains: str | None = None,
@@ -72,7 +72,7 @@ def register_tools(mcp):
         """按条件筛选元素，返回摘要列表
 
         Args:
-            region_id: 搜索区域，None 表示全部区域
+            region_xpath: 搜索区域 xpath，None 表示全部区域
             tag: HTML 标签，如 'a', 'button', 'input'
             role: ARIA role，如 'link', 'button'
             text_contains: 文字包含的关键词
@@ -80,11 +80,11 @@ def register_tools(mcp):
             limit: 最多返回数量，默认 20
 
         Returns:
-            list[dict]: [{ref, text, attrs_preview}, ...]
+            list[dict]: [{xpath, text, attrs_preview}, ...]
         """
         browser = get_browser()
         results = browser.view.match_element(
-            region_id=region_id,
+            region_xpath=region_xpath,
             tag=tag,
             role=role,
             text_contains=text_contains,
@@ -93,7 +93,7 @@ def register_tools(mcp):
         )
         return [
             {
-                "ref": r.ref,
+                "xpath": r.xpath,
                 "text": r.text,
                 "attrs_preview": r.attrs_preview,
             }
@@ -101,19 +101,18 @@ def register_tools(mcp):
         ]
 
     @mcp.tool()
-    def get_element(ref: str):
+    def get_element(xpath: str):
         """获取元素的完整信息
 
         Args:
-            ref: 元素引用 ID，如 'r5'
+            xpath: 元素 xpath 路径
 
         Returns:
-            dict: {ref, tag, role, text, xpath, attrs}
+            dict: {tag, role, text, xpath, attrs}
         """
         browser = get_browser()
-        ele = browser.view.get_element(ref)
+        ele = browser.view.get_element(xpath)
         return {
-            "ref": ele.ref,
             "tag": ele.tag,
             "role": ele.role,
             "text": ele.text,
@@ -124,17 +123,17 @@ def register_tools(mcp):
     # ========== 元素操作 ==========
 
     @mcp.tool()
-    def click_element(ref: str):
+    def click_element(xpath: str):
         """点击元素
 
         Args:
-            ref: 元素引用 ID
+            xpath: 元素 xpath 路径
 
         Returns:
             dict: {success, new_url, error}
         """
         browser = get_browser()
-        result = browser.act.click(ref)
+        result = browser.act.click(xpath)
         return {
             "success": result.success,
             "new_url": result.new_url,
@@ -142,11 +141,11 @@ def register_tools(mcp):
         }
 
     @mcp.tool()
-    def input_text(ref: str, text: str, clear: bool = False):
+    def input_text(xpath: str, text: str, clear: bool = False):
         """向输入框输入文字
 
         Args:
-            ref: 元素引用 ID
+            xpath: 元素 xpath 路径
             text: 要输入的文字
             clear: 是否先清空，默认 False
 
@@ -154,7 +153,7 @@ def register_tools(mcp):
             dict: {success, error}
         """
         browser = get_browser()
-        result = browser.act.input_by_ref(ref, text, clear=clear)
+        result = browser.act.input_by_xpath(xpath, text, clear=clear)
         return {
             "success": result.success,
             "error": result.error,
