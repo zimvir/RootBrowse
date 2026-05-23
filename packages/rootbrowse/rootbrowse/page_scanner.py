@@ -263,32 +263,58 @@ class PageScanner:
         raise RegionNotFoundError(f"Region not found: {xpath}")
 
     def _query_elements_in_region(self, region_xpath: str, tag: str | None = None) -> list[Element]:
-        """查询区域内符合条件的元素"""
-        elements = []
+        """用 JS 一次性查询区域内所有元素"""
+        tags = CLICKABLE_TAGS if tag is None else [tag]
+        selector = ','.join(tags)
 
-        # 如果指定了 tag，直接用 tag 查询
-        tags_to_query = [tag] if tag else CLICKABLE_TAGS
+        js = f"""
+        function getXPath(ele) {{
+            if (!ele || ele.nodeType !== 1) return '';
+            var path = [];
+            while (ele && ele.nodeType === 1) {{
+                var index = 1;
+                for (var sibling = ele.previousSibling; sibling; sibling = sibling.previousSibling) {{
+                    if (sibling.nodeType === 1 && sibling.tagName === ele.tagName) index++;
+                }}
+                var tag = ele.tagName.toLowerCase();
+                path.unshift(tag + '[' + index + ']');
+                ele = ele.parentElement;
+            }}
+            return '/' + path.join('/');
+        }}
 
-        for t in tags_to_query:
-            try:
-                # 先尝试在区域内查询
-                region_ele = self._page.ele(f'xpath={region_xpath}')
-                if region_ele:
-                    for ele in region_ele.eles(f'tag:{t}', timeout=0.5):
-                        try:
-                            elements.append(Element(
-                                tag=ele.tag,
-                                role=ele.attr("role") or "",
-                                text=ele.text or "",
-                                xpath=ele.xpath or "",
-                                attrs=dict(ele.attrs) if hasattr(ele, 'attrs') else {}
-                            ))
-                        except Exception:
-                            continue
-            except Exception:
-                continue
+        var region = document.evaluate("{region_xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (!region) return [];
+        var results = [];
+        var nodes = region.querySelectorAll("{selector}");
+        for (var i = 0; i < nodes.length; i++) {{
+            var ele = nodes[i];
+            var attrs = {{}};
+            var attrs_list = ele.attributes;
+            for (var j = 0; j < attrs_list.length; j++) {{
+                var attr = attrs_list[j];
+                if (attr.name === 'href' || attr.name === 'src' || attr.name === 'class' || attr.name === 'id') {{
+                    attrs[attr.name] = attr.value;
+                }}
+            }}
+            results.push({{
+                tag: ele.tagName.toLowerCase(),
+                role: ele.getAttribute('role') || '',
+                text: (ele.textContent || '').trim().substring(0, 100),
+                xpath: getXPath(ele),
+                attrs: attrs
+            }});
+        }}
+        return results;
+        """
 
-        return elements
+        try:
+            result = self._page.run_js(js)
+            if not result:
+                return []
+            return [Element(**item) for item in result]
+        except Exception:
+            return []
 
     def _get_attrs_preview(self, ele: Element) -> dict:
         """获取元素的属性预览"""

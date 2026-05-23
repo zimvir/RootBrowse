@@ -42,6 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **动态页面点击失效** — 根本原因是 ref 快照在 DOM 变化后过期
   - 现改为 xpath 实时查询，每次都从当前 DOM 重新定位
 
+- **match_element 性能优化** — 用 JS 一次性查询替代逐元素 CDP 往返
+  - `_query_elements_in_region()` 改为 `run_js` 单次 CDP 往返
+  - 区域内所有标签一次查询：`querySelectorAll("a,button,input,...")`
+  - 内部实现 `getXPath()` 生成 xpath，不再依赖 DrissionPage
+
 ## [0.3.2] - 2026-05-17
 
 ### Fixed
