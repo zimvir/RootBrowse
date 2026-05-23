@@ -12,7 +12,8 @@
       "Bash(.venv/Scripts/python.exe -c \"from DrissionPage import ChromiumPage; p = ChromiumPage\\(\\); p.get\\('https://www.baidu.com'\\); print\\(dir\\(p.cookies\\(\\)\\)\\)\")",
       "Bash(.venv/Scripts/python.exe -c \"from DrissionPage import ChromiumPage; p = ChromiumPage\\(\\); p.get\\('https://www.baidu.com'\\); c = p.cookies\\(\\); print\\(c.as_json\\(\\)\\)\")",
       "Bash(python -m pytest test/test_browser.py::TestSaveState -v --tb=short)",
-      "Bash(python -m pytest test/test_browser.py -v --tb=short)"
+      "Bash(python -m pytest test/test_browser.py -v --tb=short)",
+      "Bash(python -m pytest packages/rootbrowse/test/test_tab_manager.py -v)"
     ]
   }
 }
