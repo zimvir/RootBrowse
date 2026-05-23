@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-05-23
+
+### Fixed
+
+- **close_browser 异常处理** — 增强异常处理避免 NoneType 属性错误
+  - 多层 try-except 包裹，即使 `_browser._page` 为 None 或已关闭也不会报错
+
+- **match_element 性能优化** — 用 JS 一次性查询替代逐元素 CDP 往返
+  - `_query_elements_in_region()` 改为 `run_js` 单次 CDP 往返
+  - 区域内所有标签一次查询：`querySelectorAll("a,button,input,...")`
+  - 内部实现 `getXPath()` 生成 xpath，不再依赖 DrissionPage
+
 ## [0.4.0] - 2026-05-23
 
 ### Breaking Changes
@@ -36,16 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **TabManager 实时同步** — `_tabs` 属性委托 DrissionPage.tab_ids()
   - 不再自维护状态，标签页数、当前索引都实时查询
-
-### Fixed
-
-- **动态页面点击失效** — 根本原因是 ref 快照在 DOM 变化后过期
-  - 现改为 xpath 实时查询，每次都从当前 DOM 重新定位
-
-- **match_element 性能优化** — 用 JS 一次性查询替代逐元素 CDP 往返
-  - `_query_elements_in_region()` 改为 `run_js` 单次 CDP 往返
-  - 区域内所有标签一次查询：`querySelectorAll("a,button,input,...")`
-  - 内部实现 `getXPath()` 生成 xpath，不再依赖 DrissionPage
 
 ## [0.3.2] - 2026-05-17
 

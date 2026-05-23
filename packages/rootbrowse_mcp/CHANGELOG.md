@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1] - 2026-05-23
+
+### Fixed
+
+- **close_browser 异常处理** — 增强异常处理避免 NoneType 属性错误
+  - 多层 try-except 包裹
+
 ## [0.2.0] - 2026-05-23
 
 ### Breaking Changes
