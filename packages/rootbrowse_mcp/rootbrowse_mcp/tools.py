@@ -20,8 +20,16 @@ def get_browser() -> Browser:
 def _close_browser():
     """关闭 Browser 实例"""
     global _browser
-    if _browser:
-        _browser.close()
+    try:
+        if _browser is not None:
+            try:
+                page = _browser._page
+                if page is not None:
+                    page.quit()
+            except Exception:
+                pass
+            _browser = None
+    except Exception:
         _browser = None
 
 
