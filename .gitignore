@@ -6,6 +6,12 @@ __pycache__/
 .venv/
 venv/
 
+# Build artifacts
+*.egg-info/
+dist/
+build/
+*.whl
+*.tar.gz
 
 # IDE
 .idea/

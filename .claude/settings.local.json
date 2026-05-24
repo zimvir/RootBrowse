@@ -25,7 +25,8 @@
       "Bash(python -m pytest packages/rootbrowse/test/ packages/rootbrowse_mcp/test/ -v)",
       "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/pip show:*)",
       "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/python.exe -c ':*)",
-      "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/python.exe:*)"
+      "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/python.exe:*)",
+      "Bash(git add:*)"
     ]
   }
 }
