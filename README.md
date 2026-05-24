@@ -4,32 +4,47 @@
 
 ## 它解决什么问题？
 
-传统浏览器自动化（Selenium/Playwright）是为了**人操作浏览器**设计的：先写脚本，跑完结束。AI 时代需要的是**让 AI 实时操控浏览器**——AI 说"点这个按钮"，浏览器就要立刻响应。
+AI 时代，浏览器应该是 AI 的工具。但现在的方案有两个问题：
 
-RootBrowse 为 AI 重新设计：
+**1. 能让 AI 操控的浏览器方案太少了**
 
-| | 传统自动化测试 | RootBrowse |
-|---|---|---|
-| 目标 | 跑完脚本，输出报告 | AI 实时操控 |
-| 定位方式 | CSS selector（易失效） | xpath 直接操作 DOM |
-| 返回数据 | 全量 DOM（海量噪声） | 渐进式（区块→统计→元素） |
-| 操作接口 | click/input 封装（不可靠） | run_js 万能接口 |
-| 适用场景 | 回归测试 | AI Agent 实时交互 |
+大部分浏览器自动化框架（Selenium/Playwright）设计目标是给人写脚本用的，不是给 AI 实时操控的。
+
+**2. 安装太重了**
+
+Selenium 要下载 ChromeDriver，Playwright 要安装几百兆的驱动包。跑一个测试先花半小时装环境。
+
+---
+
+RootBrowse 就是来解决这两个痛点的：
+
+- **零驱动** — 基于 DrissionPage，直接用 CDP 控制 Chrome，不需要任何 driver
+- **AI 优先** — 专为 AI 实时操控设计，不是给人类写脚本用的
+
+## 安装只需要一行
+
+```bash
+pip install rootbrowse-mcp
+```
+
+没有 chromedriver，没有几百兆的 playwright install，就一个包。
+
+## 对比
+
+| | Selenium | Playwright | RootBrowse |
+|---|---|---|---|
+| 安装大小 | 上百 MB（chromedriver） | 几百 MB（playwright） | 几 MB |
+| 操作方式 | click() 封装 | click() 封装 | run_js() |
+| React 页面 | 容易失效 | 容易失效 | JS 直接操作，稳定 |
+| 数据返回 | 全量 DOM | 全量 DOM | 渐进式探索 |
+| 定位方式 | CSS selector | CSS selector | xpath 实时 |
+| AI 友好度 | 低 | 低 | 高 |
 
 **核心区别**：传统框架是给人用的，RootBrowse 是给 AI 用的。
 
 ## MCP 快速开始
 
 ### 配置 Claude Code
-
-
-#### step 1
-
-```
-pip install rootbrowse-mcp
-```
-
-#### step 2
 
 在 `C:\Users\你的用户名\.claude.json` 的 `mcpServers` 中添加：
 
@@ -43,7 +58,8 @@ pip install rootbrowse-mcp
   }
 }
 ```
-"command" 里需要填电脑里真实的 python 解释器路径(此解释器的环境必须已下载 rootbrowse-mcp)
+
+`command` 需要填电脑里真实的 python 解释器路径（此解释器的环境必须已安装 rootbrowse-mcp）。
 
 ### AI 工作流
 
@@ -117,16 +133,11 @@ if (ele) {
 return document.body.innerText.substring(0, 2000);
 ```
 
-## 安装
-
-```bash
-pip install rootbrowse-mcp
-```
-
 ## 技术栈
 
 - Python >= 3.10
 - [DrissionPage](https://github.com/g18792951860/DrissionPage) — 底层 CDP 引擎
+- FastMCP（MCP 协议实现）
 
 ## License
 
