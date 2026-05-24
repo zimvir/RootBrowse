@@ -13,7 +13,19 @@
       "Bash(.venv/Scripts/python.exe -c \"from DrissionPage import ChromiumPage; p = ChromiumPage\\(\\); p.get\\('https://www.baidu.com'\\); c = p.cookies\\(\\); print\\(c.as_json\\(\\)\\)\")",
       "Bash(python -m pytest test/test_browser.py::TestSaveState -v --tb=short)",
       "Bash(python -m pytest test/test_browser.py -v --tb=short)",
-      "Bash(python -m pytest packages/rootbrowse/test/test_tab_manager.py -v)"
+      "Bash(python -m pytest packages/rootbrowse/test/test_tab_manager.py -v)",
+      "Bash(python -m pytest packages/rootbrowse/test/ -v)",
+      "Bash(python -m pytest packages/rootbrowse/test/test_page_scanner.py packages/rootbrowse/test/test_types.py packages/rootbrowse/test/test_element_operator.py -v)",
+      "Bash(python -m pytest packages/rootbrowse/test/test_browser.py -v)",
+      "mcp__RootBrowseMCP__init_browser",
+      "mcp__RootBrowseMCP__get_page",
+      "mcp__RootBrowseMCP__get_page_regions",
+      "mcp__RootBrowseMCP__match_element",
+      "mcp__RootBrowseMCP__run_js",
+      "Bash(python -m pytest packages/rootbrowse/test/ packages/rootbrowse_mcp/test/ -v)",
+      "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/pip show:*)",
+      "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/python.exe -c ':*)",
+      "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/python.exe:*)"
     ]
   }
 }

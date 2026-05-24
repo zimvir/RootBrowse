@@ -6,6 +6,7 @@ __pycache__/
 .venv/
 venv/
 
+
 # IDE
 .idea/
 
@@ -19,3 +20,4 @@ project_idea.md
 
 # claude
 .claude
+cm

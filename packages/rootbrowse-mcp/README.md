@@ -29,7 +29,7 @@ pip install rootbrowse-mcp
   "mcpServers": {
     "rootbrowse": {
       "command": "D:\\path\\to\\.venv\\Scripts\\python.exe",
-      "args": ["-m", "rootbrowse_mcp.server"]
+      "args": ["-m", "rootbrowse-mcp.server"]
     }
   }
 }
@@ -41,12 +41,6 @@ pip install rootbrowse-mcp
 - `get_page_regions()` — 获取页面所有语义区域
 - `get_region_summary(region_xpath)` — 获取区域统计摘要
 - `match_element(region_xpath, tag, role, text_contains, query, limit)` — 按条件筛选元素
-- `get_element(xpath)` — 获取元素完整信息
-
-### 元素操作
-- `click_element(xpath)` — 点击元素
-- `input_text(xpath, text, clear)` — 向输入框输入文字
-- `send_enter()` — 发送回车键
 
 ### 浏览器
 - `init_browser(headless)` — 初始化浏览器（必选，headless 默认 True）
@@ -66,6 +60,10 @@ pip install rootbrowse-mcp
 ### 状态
 - `save_state(path)` — 保存浏览器状态
 - `load_state(path)` — 恢复浏览器状态
+
+## run_js 万能接口
+
+所有元素操作（点击、输入、获取元素信息）都通过 `run_js` 完成，不单独封装。
 
 ## 数据类型
 
@@ -96,5 +94,5 @@ run_js("return document.body.innerText.substring(2000, 5000)")
 ## 依赖
 
 - Python >= 3.10
-- rootbrowse >= 0.4.0
+- rootbrowse >= 0.5.0
 - mcp >= 1.0.0

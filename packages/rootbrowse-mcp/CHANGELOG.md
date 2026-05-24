@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.4.0] - 2026-05-24
+
+### Breaking Changes
+
+- **移除封装工具** — `click_element`、`input_text`、`get_element`、`send_enter` 已删除
+  - 封装层不可靠，agent 直接用 `run_js` 操作元素
+  - `run_js` 是万能接口，支持点击、输入、获取元素信息等所有操作
+
+### Changed
+
+- **简化工具列表** — 从 15 个精简到 11 个核心工具
+- 更新使用指南，展示 `run_js` 操作元素的标准写法
+
+## [0.3.1] - 2026-05-23
+
+### Changed
+
+- **ElementOperator 全 JS 化** — 所有元素操作改用 JS 实现
+  - `click_element()` → JS `ele.click()`，支持隐藏元素
+  - `hover()` → JS `dispatchEvent(mouseover)`
+  - `double_click()` → JS `dispatchEvent(dblclick)`
+  - `right_click()` → JS `dispatchEvent(contextmenu)`
+  - `submit()` → JS `ele.form.submit()`
+  - `clear()` → JS `ele.value = ''`
+
+- **适配 rootbrowse 0.5.0**
+
+## [0.3.1] - 2026-05-23
+
+### Fixed
+
+- **TabManager DrissionPage 4.x 兼容** — `new_tab` / `switch_tab` / `close_tab` 修复
+
 ## [0.2.1] - 2026-05-23
 
 ### Fixed

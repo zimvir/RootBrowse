@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-23
+
+### Changed
+
+- **ElementOperator 全 JS 化** — 所有操作改用 JS 实现
+  - `click()` → JS `ele.click()`
+  - `hover()` → JS `dispatchEvent(mouseover)`
+  - `double_click()` → JS `dispatchEvent(dblclick)`
+  - `right_click()` → JS `dispatchEvent(contextmenu)`
+  - `submit()` → JS `ele.form.submit()`
+  - `clear()` → JS `ele.value = ''`
+  - 只有 `input_by_xpath()` 保留 DrissionPage（需要处理中文输入法）
+
+- **PageScanner._detect_regions() 改为 JS** — 一次 `run_js` 获取所有区域
+
+## [0.5.1] - 2026-05-23
+
+### Fixed
+
+- **TabManager DrissionPage 4.x 兼容** — API 变更
+  - `tab_ids()` → `tab_ids` property
+  - `tab_id()` → `tab_id` property
+  - `to_tab()` → `activate_tab()`
+
 ## [0.4.1] - 2026-05-23
 
 ### Fixed

@@ -7,7 +7,7 @@ from .exceptions import ElementNotFoundError
 
 
 class ElementOperator:
-    """元素操作器，执行点击、输入、悬停等操作"""
+    """元素操作器，执行点击、输入、悬停等操作（纯 JS 实现）"""
 
     def __init__(self, page: Any):
         """
@@ -17,6 +17,24 @@ class ElementOperator:
             page: DrissionPage ChromiumPage 实例
         """
         self._page = page
+
+    def _xpath_to_js(self, xpath: str, js_code: str) -> str:
+        """
+        将 xpath 包装成 JS 代码，在元素上执行操作
+
+        Args:
+            xpath: 元素 xpath
+            js_code: 在 ele 变量上执行的 JS 代码（用 ele 表示元素）
+
+        Returns:
+            完整的 JS 字符串
+        """
+        return f"""
+        var ele = document.evaluate("{xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (!ele) return 'not found';
+        {js_code}
+        return 'ok';
+        """
 
     def click(self, xpath: str) -> OperationResult:
         """
@@ -29,8 +47,12 @@ class ElementOperator:
             OperationResult: {success, new_url?, error?}
         """
         try:
-            self._page.ele(f'xpath={xpath}').click()
-            return OperationResult(success=True)
+            self._page.wait.doc_loaded()
+            js = self._xpath_to_js(xpath, "ele.click();")
+            result = self._page.run_js(js)
+            if result == 'ok':
+                return OperationResult(success=True)
+            return OperationResult(success=False, error=f"元素未找到: {xpath}")
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -38,7 +60,7 @@ class ElementOperator:
         self, xpath: str, text: str, clear: bool = False
     ) -> OperationResult:
         """
-        向输入框写入文字
+        向输入框写入文字（保留 DrissionPage，因为需要处理中文输入法）
 
         Args:
             xpath: 元素 xpath 路径
@@ -68,8 +90,14 @@ class ElementOperator:
             OperationResult: {success, error?}
         """
         try:
-            self._page.ele(f'xpath={xpath}').hover()
-            return OperationResult(success=True)
+            js = self._xpath_to_js(xpath, """
+            var event = new MouseEvent('mouseover', {bubbles: true, cancelable: true, view: window});
+            ele.dispatchEvent(event);
+            """)
+            result = self._page.run_js(js)
+            if result == 'ok':
+                return OperationResult(success=True)
+            return OperationResult(success=False, error=f"元素未找到: {xpath}")
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -84,8 +112,14 @@ class ElementOperator:
             OperationResult: {success, error?}
         """
         try:
-            self._page.ele(f'xpath={xpath}').double_click()
-            return OperationResult(success=True)
+            js = self._xpath_to_js(xpath, """
+            var event = new MouseEvent('dblclick', {bubbles: true, cancelable: true, view: window});
+            ele.dispatchEvent(event);
+            """)
+            result = self._page.run_js(js)
+            if result == 'ok':
+                return OperationResult(success=True)
+            return OperationResult(success=False, error=f"元素未找到: {xpath}")
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -100,8 +134,14 @@ class ElementOperator:
             OperationResult: {success, error?}
         """
         try:
-            self._page.ele(f'xpath={xpath}').right_click()
-            return OperationResult(success=True)
+            js = self._xpath_to_js(xpath, """
+            var event = new MouseEvent('contextmenu', {bubbles: true, cancelable: true, view: window});
+            ele.dispatchEvent(event);
+            """)
+            result = self._page.run_js(js)
+            if result == 'ok':
+                return OperationResult(success=True)
+            return OperationResult(success=False, error=f"元素未找到: {xpath}")
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -116,8 +156,11 @@ class ElementOperator:
             OperationResult: {success, error?}
         """
         try:
-            self._page.ele(f'xpath={xpath}').submit()
-            return OperationResult(success=True)
+            js = self._xpath_to_js(xpath, "if (ele.form) ele.form.submit();")
+            result = self._page.run_js(js)
+            if result == 'ok':
+                return OperationResult(success=True)
+            return OperationResult(success=False, error=f"元素未找到: {xpath}")
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -132,8 +175,11 @@ class ElementOperator:
             OperationResult: {success, error?}
         """
         try:
-            self._page.ele(f'xpath={xpath}').clear()
-            return OperationResult(success=True)
+            js = self._xpath_to_js(xpath, "ele.value = '';")
+            result = self._page.run_js(js)
+            if result == 'ok':
+                return OperationResult(success=True)
+            return OperationResult(success=False, error=f"元素未找到: {xpath}")
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 

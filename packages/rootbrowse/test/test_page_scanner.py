@@ -12,6 +12,7 @@ from rootbrowse.exceptions import ElementNotFoundError, RegionNotFoundError
 def mock_page():
     """创建模拟的 DrissionPage"""
     page = MagicMock()
+    page.run_js = MagicMock(return_value=[])
     page.ele = MagicMock()
     page.eles = MagicMock(return_value=[])
     return page
@@ -40,10 +41,7 @@ class TestGetRegions:
 
     def test_get_regions_empty_body(self, page_scanner, mock_page):
         """测试 body 为空时返回默认区域"""
-        mock_body = MagicMock()
-        mock_body.tag = 'body'
-        mock_body.children.return_value = []
-        mock_page.ele.return_value = mock_body
+        mock_page.run_js.return_value = []
 
         regions = page_scanner.get_regions()
         assert len(regions) == 1
@@ -52,15 +50,9 @@ class TestGetRegions:
 
     def test_get_regions_with_children(self, page_scanner, mock_page):
         """测试 body 有子元素时正确划分区域"""
-        mock_region1 = MagicMock()
-        mock_region1.tag = "div"
-        mock_region1.attr.return_value = "header"
-        mock_region1.xpath = "/html/body/div[1]"
-
-        mock_body = MagicMock()
-        mock_body.tag = "body"
-        mock_body.children.return_value = [mock_region1]
-        mock_page.ele.return_value = mock_body
+        mock_page.run_js.return_value = [
+            {'xpath': '/html/body/div[1]', 'label': '区块'}
+        ]
 
         regions = page_scanner.get_regions()
         assert len(regions) == 1
@@ -83,26 +75,12 @@ class TestGetRegionSummary:
 
     def test_get_region_summary_success(self, page_scanner, mock_page):
         """测试获取区域摘要成功"""
-        mock_ele = MagicMock()
-        mock_ele.tag = "a"
-        mock_ele.attr.return_value = "link"
-        mock_ele.text = "链接"
-        mock_ele.xpath = "/html/body/div[1]/a[1]"
-        mock_ele.attrs = {"href": "/page1"}
-
-        mock_region = MagicMock()
-        mock_region.tag = "div"
-        mock_region.attr.return_value = "header"
-        mock_region.xpath = "/html/body/div[1]"
-        mock_region.eles.return_value = [mock_ele]
-
-        mock_body = MagicMock()
-        mock_body.tag = "body"
-        mock_body.children.return_value = [mock_region]
-        mock_page.ele.return_value = mock_body
+        mock_page.run_js.return_value = [
+            {'xpath': '/html/body/div[1]', 'label': '区块'}
+        ]
 
         page_scanner.get_regions()
-        mock_page.ele.return_value = mock_region
+        # get_region_summary 内部也用 run_js
         summary = page_scanner.get_region_summary("/html/body/div[1]")
 
         assert summary.count >= 0
@@ -113,12 +91,9 @@ class TestMatchElement:
 
     def test_match_element_empty_regions(self, page_scanner, mock_page):
         """测试无区域时返回空"""
-        mock_body = MagicMock()
-        mock_body.tag = 'body'
-        mock_body.children.return_value = []
-        mock_page.ele.return_value = mock_body
-        page_scanner.get_regions()
+        mock_page.run_js.return_value = []
 
+        page_scanner.get_regions()
         results = page_scanner.match_element(tag="a")
         assert results == []
 

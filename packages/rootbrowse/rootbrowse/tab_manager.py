@@ -20,7 +20,7 @@ class TabManager:
     @property
     def _tabs(self) -> list:
         """实时获取 DrissionPage 标签页列表"""
-        return self._page.tab_ids()
+        return self._page.tab_ids
 
     def new_tab(self, url: str) -> int:
         """
@@ -54,7 +54,7 @@ class TabManager:
 
         # 先切换到目标标签页再关闭
         if target != self.current_index():
-            self._page.to_tab(target)
+            self._page.activate_tab(target)
         self._page.close()
 
     def switch_to_tab(self, index: int) -> None:
@@ -70,7 +70,7 @@ class TabManager:
         total = self.tabs_count()
         if index < 0 or index >= total:
             raise TabNotFoundError(f"Tab index out of range: {index}")
-        self._page.to_tab(index)
+        self._page.activate_tab(index)
 
     def tabs_count(self) -> int:
         """
@@ -88,7 +88,7 @@ class TabManager:
         Returns:
             当前标签页索引
         """
-        current_tab = self._page.tab_id()
+        current_tab = self._page.tab_id
         for i, tid in enumerate(self._tabs):
             if tid == current_tab:
                 return i

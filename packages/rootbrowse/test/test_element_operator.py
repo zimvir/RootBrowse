@@ -10,6 +10,8 @@ from rootbrowse.element_operator import ElementOperator
 def mock_page():
     """创建模拟的 DrissionPage"""
     page = MagicMock()
+    page.run_js = MagicMock(return_value='ok')
+    page.wait = MagicMock()
     page.ele = MagicMock()
     return page
 
@@ -33,20 +35,17 @@ class TestClick:
 
     def test_click_success(self, element_operator, mock_page):
         """测试点击成功"""
-        mock_ele = MagicMock()
-        mock_page.ele.return_value = mock_ele
-
         result = element_operator.click("/html/body/button[1]")
         assert result.success is True
-        mock_ele.click.assert_called_once()
+        mock_page.run_js.assert_called()
 
     def test_click_failure(self, element_operator, mock_page):
-        """测试点击失败"""
-        mock_page.ele.side_effect = Exception("element not found")
+        """测试点击失败（元素未找到）"""
+        mock_page.run_js.return_value = 'not found'
 
         result = element_operator.click("/html/body/nonexistent")
         assert result.success is False
-        assert result.error is not None
+        assert "未找到" in result.error
 
 
 class TestInputByXPath:
@@ -84,16 +83,13 @@ class TestHover:
 
     def test_hover_success(self, element_operator, mock_page):
         """测试悬停成功"""
-        mock_ele = MagicMock()
-        mock_page.ele.return_value = mock_ele
-
         result = element_operator.hover("/html/body/div[1]")
         assert result.success is True
-        mock_ele.hover.assert_called_once()
+        mock_page.run_js.assert_called()
 
     def test_hover_failure(self, element_operator, mock_page):
         """测试悬停失败"""
-        mock_page.ele.side_effect = Exception("hover failed")
+        mock_page.run_js.return_value = 'not found'
 
         result = element_operator.hover("/html/body/nonexistent")
         assert result.success is False
@@ -104,12 +100,9 @@ class TestDoubleClick:
 
     def test_double_click_success(self, element_operator, mock_page):
         """测试双击成功"""
-        mock_ele = MagicMock()
-        mock_page.ele.return_value = mock_ele
-
         result = element_operator.double_click("/html/body/div[1]")
         assert result.success is True
-        mock_ele.double_click.assert_called_once()
+        mock_page.run_js.assert_called()
 
 
 class TestRightClick:
@@ -117,12 +110,9 @@ class TestRightClick:
 
     def test_right_click_success(self, element_operator, mock_page):
         """测试右键点击成功"""
-        mock_ele = MagicMock()
-        mock_page.ele.return_value = mock_ele
-
         result = element_operator.right_click("/html/body/div[1]")
         assert result.success is True
-        mock_ele.right_click.assert_called_once()
+        mock_page.run_js.assert_called()
 
 
 class TestSubmit:
@@ -130,12 +120,9 @@ class TestSubmit:
 
     def test_submit_success(self, element_operator, mock_page):
         """测试提交表单成功"""
-        mock_ele = MagicMock()
-        mock_page.ele.return_value = mock_ele
-
         result = element_operator.submit("/html/body/form[1]")
         assert result.success is True
-        mock_ele.submit.assert_called_once()
+        mock_page.run_js.assert_called()
 
 
 class TestClear:
@@ -143,12 +130,9 @@ class TestClear:
 
     def test_clear_success(self, element_operator, mock_page):
         """测试清空输入框成功"""
-        mock_ele = MagicMock()
-        mock_page.ele.return_value = mock_ele
-
         result = element_operator.clear("/html/body/input[1]")
         assert result.success is True
-        mock_ele.clear.assert_called_once()
+        mock_page.run_js.assert_called()
 
 
 class TestSendEnter:
@@ -157,5 +141,5 @@ class TestSendEnter:
     def test_send_enter(self, element_operator, mock_page):
         """测试发送回车键"""
         element_operator.send_enter()
-        mock_page.run_js.assert_called_once()
-        mock_page.wait.assert_called_once()
+        mock_page.run_js.assert_called()
+        mock_page.wait.assert_called()

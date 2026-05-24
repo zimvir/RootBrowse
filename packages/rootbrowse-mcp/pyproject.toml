@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rootbrowse-mcp"
-version = "0.1.0"
-description = "MCP server for RootBrowse browser automation"
+version = "0.4.0"
+description = "A browser for AI agent"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
-    "rootbrowse>=0.2.0",
+    "rootbrowse==0.5.1",
     "mcp>=1.0.0",
 ]
 
@@ -18,4 +18,4 @@ dependencies = [
 rootbrowse-mcp = "rootbrowse_mcp.server:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/rootbrowse_mcp"]
+packages = ["rootbrowse_mcp"]

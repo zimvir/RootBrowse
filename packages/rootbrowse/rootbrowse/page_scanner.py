@@ -215,25 +215,60 @@ class PageScanner:
         self._regions.clear()
 
     def _detect_regions(self) -> None:
-        """检测页面语义区域（body 直接子元素）"""
+        """检测页面语义区域（body 直接子元素，用 JS 一次获取）"""
         self._regions.clear()
         try:
-            body = self._page.ele('tag:body')
-            if body is None:
+            js = """
+            var body = document.body;
+            if (!body) return [];
+            var results = [];
+            var children = body.children;
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+                var tag = child.tagName || '';
+                var excludeTags = ['SCRIPT', 'STYLE', 'META', 'LINK', 'HEAD'];
+                if (excludeTags.indexOf(tag) !== -1) continue;
+                var id = child.getAttribute('id') || '';
+                var cls = child.getAttribute('class') || '';
+                var combined = (id + ' ' + cls).toLowerCase();
+                var label = '区块';
+                var keywordMap = {
+                    'header': '头部', 'nav': '导航', 'footer': '底部',
+                    'sidebar': '侧边栏', 'aside': '侧边栏', 'main': '主内容',
+                    'content': '内容', 'article': '文章', 'section': '区块'
+                };
+                for (var key in keywordMap) {
+                    if (combined.indexOf(key) !== -1) { label = keywordMap[key]; break; }
+                }
+                if (!id && !cls) label = tag.toLowerCase() || '区块';
+                results.push({tag: tag, id: id, cls: cls, label: label, xpath: getXPath(child)});
+            }
+            return results;
+
+            function getXPath(ele) {
+                if (!ele || ele.nodeType !== 1) return '';
+                var path = [];
+                while (ele && ele.nodeType === 1) {
+                    var index = 1;
+                    for (var sibling = ele.previousSibling; sibling; sibling = sibling.previousSibling) {
+                        if (sibling.nodeType === 1 && sibling.tagName === ele.tagName) index++;
+                    }
+                    var tag = ele.tagName.toLowerCase();
+                    path.unshift(tag + '[' + index + ']');
+                    ele = ele.parentElement;
+                }
+                return '/' + path.join('/');
+            }
+            """
+            result = self._page.run_js(js)
+            if not result:
                 self._regions = [Region(xpath="/html/body", label="主内容")]
                 return
 
-            children = body.children()
-
-            for child in children:
-                tag = child.tag or ""
-                if tag in REGION_NOISE_TAGS:
-                    continue
-
-                region_label = self._guess_region_label(child)
+            for item in result:
                 self._regions.append(Region(
-                    xpath=child.xpath,
-                    label=region_label
+                    xpath=item['xpath'],
+                    label=item['label']
                 ))
 
             if not self._regions:
