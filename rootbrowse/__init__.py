@@ -1,5 +1,8 @@
 """RootBrowse - Python浏览器自动化 MCP 框架"""
 
+__author__ = "zimvir"
+__email__ = "zimvir@qq.com"
+
 from .core import (
     __version__,
     Browser,
@@ -19,6 +22,9 @@ from .core import (
     OperationError,
     StateFileError,
     PageLoadError,
+    View,
+    Operation,
+    Tab
 )
 
 __all__ = [
@@ -40,4 +46,7 @@ __all__ = [
     "OperationError",
     "StateFileError",
     "PageLoadError",
+    "View",
+    "Operation",
+    "Tab"
 ]

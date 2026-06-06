@@ -26,7 +26,24 @@
       "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/pip show:*)",
       "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/python.exe -c ':*)",
       "Bash(D:/workspace/project/RootBrowse/.venv/Scripts/python.exe:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(ls rootbrowse/*.toml)",
+      "Bash(ls rootbrowse/core/*.toml)",
+      "Bash(python:*)",
+      "Bash(pip show:*)",
+      "Bash(PYTHONPATH=. python:*)",
+      "mcp__RootBrowse__get_page",
+      "mcp__RootBrowse__get_page_regions",
+      "mcp__RootBrowse__get_tabs_count",
+      "mcp__RootBrowse__match_element",
+      "mcp__RootBrowse__run_js",
+      "mcp__RootBrowse__new_tab",
+      "mcp__RootBrowse__switch_tab",
+      "Bash(dir \"D:\\\\ai-agent\\\\mcp\\\\RootBrowse\")",
+      "Bash(dir)",
+      "Bash(D:\\\\ai-agent\\\\mcp\\\\RootBrowse\\\\.venv\\\\Scripts\\\\python.exe:*)",
+      "mcp__RootBrowse__init_browser",
+      "mcp__RootBrowse__close_browser"
     ]
   }
 }
