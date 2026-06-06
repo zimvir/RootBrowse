@@ -4,22 +4,22 @@ import json
 from typing import Any
 
 from .constants import DEFAULT_URL
-from .tab_manager import TabManager
-from .element_operator import ElementOperator
-from .page_scanner import PageScanner
+from .tab import Tab
+from .operation import Operation
+from .view import View
 from .types import Region, RegionSummary, Element, ElementPreview, OperationResult
 from .exceptions import BrowserError, StateFileError, PageLoadError
 
 
 class Browser:
     """
-    浏览器主入口，组合 TabManager、ElementOperator、PageScanner
+    浏览器主入口，组合 View、Tab、Operation
 
     AI 调用方式：
         browser = Browser()                    # 默认打开 bing.com
         browser = Browser('https://example.com') # 指定 URL
         browser.view.get_regions()
-        browser.act.click('r1')
+        browser.operation.click('r1')
     """
 
     def __init__(self, page: Any | None = None, url: str | None = None, headless: bool = True):
@@ -35,6 +35,7 @@ class Browser:
         if page is None:
             from DrissionPage import ChromiumPage, ChromiumOptions
             opts = ChromiumOptions()
+            opts.auto_port()  # 自动分配空闲端口，每个进程独立浏览器
             # 有头还是无头浏览器
             if headless:
                 opts.set_argument('--headless=new', value=True)
@@ -47,9 +48,9 @@ class Browser:
         self._closed = False
 
         # 初始化子模块
-        self._page_scanner = PageScanner(self._page)
-        self._tab_manager = TabManager(self._page)
-        self._element_operator = ElementOperator(self._page)
+        self._view = View(self._page)
+        self._tab = Tab(self._page)
+        self._operation = Operation(self._page)
 
         # 打开默认 URL（只有当 page 和 url 都没提供时才自动打开）
         if page_2 is None and url is None:
@@ -71,19 +72,19 @@ class Browser:
         return cls(url=url)
 
     @property
-    def tabs(self) -> TabManager:
+    def tabs(self) -> Tab:
         """标签页管理器"""
-        return self._tab_manager
+        return self._tab
 
     @property
-    def view(self) -> PageScanner:
+    def view(self) -> View:
         """页面扫描器"""
-        return self._page_scanner
+        return self._view
 
     @property
-    def act(self) -> ElementOperator:
+    def operation(self) -> Operation:
         """元素操作器"""
-        return self._element_operator
+        return self._operation
 
     def get(self, url: str, timeout: float = 30) -> dict:
         """
@@ -101,7 +102,7 @@ class Browser:
         """
         try:
             self._page.get(url, timeout=timeout)
-            self._page_scanner.clear_cache()  # 清空缓存，换页面了
+            self._view.clear_cache()  # 清空缓存，换页面了
             title = self._page.title or ""
             return {"url": url, "title": title}
         except Exception as e:

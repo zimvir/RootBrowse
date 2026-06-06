@@ -2,9 +2,9 @@
 
 from ._version import __version__
 from .browser import Browser
-from .tab_manager import TabManager
-from .element_operator import ElementOperator
-from .page_scanner import PageScanner
+from .view import View
+from .tab import Tab
+from .operation import Operation
 from .types import Region, Element, RegionSummary, ElementPreview, OperationResult
 from .exceptions import (
     RootBrowseError,
@@ -17,12 +17,17 @@ from .exceptions import (
     PageLoadError,
 )
 
+# 别名，保持向后兼容
+TabManager = Tab
+ElementOperator = Operation
+PageScanner = View
+
 __all__ = [
     "__version__",
     "Browser",
-    "TabManager",
-    "ElementOperator",
-    "PageScanner",
+    "View",
+    "Tab",
+    "Operation",
     "Region",
     "Element",
     "RegionSummary",
@@ -36,4 +41,8 @@ __all__ = [
     "OperationError",
     "StateFileError",
     "PageLoadError",
+    # 别名
+    "TabManager",
+    "ElementOperator",
+    "PageScanner",
 ]
