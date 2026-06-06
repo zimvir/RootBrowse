@@ -24,7 +24,7 @@ RootBrowse 就是来解决这两个痛点的：
 ## 安装只需要一行
 
 ```bash
-pip install rootbrowse-mcp
+pip install rootbrowse
 ```
 
 没有 chromedriver，没有几百兆的 playwright install，就一个包。
@@ -51,15 +51,16 @@ pip install rootbrowse-mcp
 ```json
 {
   "mcpServers": {
-    "RootBrowseMCP": {
+    "RootBrowse": {
+      "type": "stdio",
       "command": "python.exe",
-      "args": ["-m", "rootbrowse_mcp.server"]
+      "args": ["-m", "rootbrowse.mcp.server"]
     }
   }
 }
 ```
 
-`command` 需要填电脑里真实的 python 解释器路径（此解释器的环境必须已安装 rootbrowse-mcp）。
+`command` 需要填电脑里真实的 python 解释器路径（此解释器的环境必须已安装 rootbrowse）。
 
 ### AI 工作流
 
@@ -95,7 +96,7 @@ browser.close()
 
 **封装层不可靠，run_js 是万能接口**。点击、输入、获取元素信息，都通过 `run_js` 完成，AI 自己决定何时用它。
 
-## MCP 工具（11 个）
+## MCP 工具（15 个）
 
 | 类别 | 工具 | 说明 |
 |---|---|---|
@@ -104,14 +105,16 @@ browser.close()
 | | `match_element(...)` | 按条件筛选元素 |
 | 浏览器 | `init_browser(headless)` | 初始化（必选） |
 | | `get_page(url)` | 打开 URL |
-| | `take_screenshot(path)` | 截图 |
+| | `take_screenshot(path)` | 截图（返回文件路径或 base64） |
 | | `close_browser()` | 关闭浏览器 |
 | | `run_js(code, args)` | 执行 JavaScript |
 | 标签页 | `new_tab(url)` | 新建标签页 |
 | | `close_tab()` | 关闭标签页 |
 | | `switch_tab(index)` | 切换标签页 |
+| | `get_tabs_count()` | 获取标签页数量 |
 | 状态 | `save_state(path)` | 保存会话 |
 | | `load_state(path)` | 恢复会话 |
+| 其他 | `get_guide()` | 获取 MCP 使用指南 |
 
 ## run_js 示例
 

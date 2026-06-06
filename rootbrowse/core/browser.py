@@ -38,7 +38,7 @@ class Browser:
             opts.auto_port()  # 自动分配空闲端口，每个进程独立浏览器
             # 有头还是无头浏览器
             if headless:
-                opts.set_argument('--headless=new', value=True)
+                opts.set_argument('--headless', value=True)
                 opts.set_argument('--disable-gpu')
                 opts.set_argument('--no-sandbox')
 
@@ -127,7 +127,7 @@ class Browser:
             self._page.get_screenshot(path=path)
             return path
         else:
-            return self._page.screenshot()
+            return self._page._get_screenshot(as_base64=True)
 
     def save_state(self, path: str) -> None:
         """
