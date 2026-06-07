@@ -10,8 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **--headless=new 改为 --headless** — DrissionPage auto_port() 在 Chrome 145 下与 `--headless=new` 不兼容，WebSocket 握手失败，改用旧版 `--headless` 参数
-- **take_screenshot() 修复** — 之前调用不存在的 `page.screenshot()` 方法，改为 `_get_screenshot(as_base64=True)` 返回 base64
-
+- **take_screenshot() 修复** — 之前调用不存在的 `page.screenshot()` 方法，改为 `_get_screenshot(as_base64=True)` 返回 base64。
 ## [0.6.1] - 2026-06-06
 
 ### Changed
